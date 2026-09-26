@@ -1,0 +1,11 @@
+---
+- name: Install nginx on RedHat family
+  ansible.builtin.dnf:
+    name: nginx
+    state: present
+
+- name: Ensure nginx service is enabled and started
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true

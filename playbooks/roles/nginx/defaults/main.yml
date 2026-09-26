@@ -1,0 +1,5 @@
+#SPDX-License-Identifier: MIT-0
+---
+nginx_service_state: started
+nginx_service_enabled: true
+# defaults file for roles/nginx

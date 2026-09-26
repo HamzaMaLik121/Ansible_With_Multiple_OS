@@ -1,0 +1,38 @@
+---
+- name: Include RedHat tasks
+  include_tasks: redhat.yml
+  when: ansible_distribution == "RedHat"
+
+- name: Include Amazon Linux tasks
+  include_tasks: amazon.yml
+  when: ansible_distribution == "Amazon"
+
+- name: Include Ubuntu tasks
+  include_tasks: ubuntu.yml
+  when: ansible_distribution == "Ubuntu"
+
+- name: Ensure /var/www/html exists on all hosts
+  ansible.builtin.file:
+    path: /var/www/html
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Deploy HTML file (Ubuntu path)
+  ansible.builtin.copy:
+    src: index.html
+    dest: /var/www/html/index.html
+    owner: root
+    group: root
+    mode: '0644'
+  when: ansible_distribution == "Ubuntu"
+
+- name: Deploy HTML file (RedHat/Amazon path)
+  ansible.builtin.copy:
+    src: index.html
+    dest: /usr/share/nginx/html/index.html
+    owner: root
+    group: root
+    mode: '0644'
+  when: ansible_distribution in ["RedHat", "Amazon"]

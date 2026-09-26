@@ -1,0 +1,12 @@
+.ssh/
+.bash_history
+.bashrc
+.bash_logout
+.profile
+.viminfo
+.cache/
+*.pem
+*.key
+terra-key-ansible
+terra-key-ansible.pub
+hosts.ini

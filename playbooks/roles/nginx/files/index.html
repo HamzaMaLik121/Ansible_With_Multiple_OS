@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ansible Automation Lab — Hamza Ali</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #0d1117;
+    --panel: #161d27;
+    --panel-border: #263042;
+    --text: #e6edf3;
+    --text-dim: #7c8ba1;
+    --accent: #39d98a;
+    --accent-dim: #1f7a52;
+    --amber: #e3b341;
+    --red: #f47067;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  .bg-grid {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(57,217,138,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(57,217,138,0.035) 1px, transparent 1px);
+    background-size: 42px 42px;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .glow {
+    position: fixed;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 900px;
+    height: 500px;
+    background: radial-gradient(ellipse at center, rgba(57,217,138,0.12) 0%, transparent 70%);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: blur(10px);
+    background: rgba(13,17,23,0.75);
+    border-bottom: 1px solid var(--panel-border);
+  }
+  nav .wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+  }
+  .brand {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .brand .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .navlinks { display: flex; gap: 28px; }
+  .navlinks a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    transition: color 0.2s;
+  }
+  .navlinks a:hover { color: var(--accent); }
+
+  .hero { padding: 90px 0 60px; }
+  .hero-label {
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .hero-label::before { content: '$'; opacity: 0.6; }
+
+  h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
+    font-size: clamp(32px, 5.5vw, 52px);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+  }
+
+  .hero p.lede {
+    color: var(--text-dim);
+    font-size: 17px;
+    max-width: 560px;
+    margin-bottom: 40px;
+  }
+
+  .terminal {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  .terminal-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #10161f;
+    border-bottom: 1px solid var(--panel-border);
+  }
+  .terminal-bar .tdot { width: 11px; height: 11px; border-radius: 50%; }
+  .terminal-bar .t1 { background: #f47067; }
+  .terminal-bar .t2 { background: #e3b341; }
+  .terminal-bar .t3 { background: #39d98a; }
+  .terminal-bar .tname {
+    margin-left: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .terminal-body {
+    padding: 22px 24px 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    line-height: 1.8;
+    min-height: 220px;
+  }
+  .terminal-body .prompt { color: var(--accent); }
+  .terminal-body .cmd { color: var(--text); }
+  .terminal-body .out-ok { color: var(--accent); }
+  .terminal-body .out-dim { color: var(--text-dim); }
+  #typed-line::after {
+    content: '▌';
+    color: var(--accent);
+    animation: blink 1s step-start infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .fade-line {
+    opacity: 0;
+    animation: fadeIn 0.4s forwards;
+  }
+  @keyframes fadeIn { to { opacity: 1; } }
+
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 28px;
+  }
+  .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .badge .bdot { width: 6px; height: 6px; border-radius: 50%; }
+
+  section { padding: 64px 0; border-top: 1px solid var(--panel-border); }
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent-dim);
+    font-size: 13px;
+  }
+  h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .tree {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 24px 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    color: var(--text-dim);
+    overflow-x: auto;
+  }
+  .tree .file { color: var(--text); }
+  .tree .comment { color: var(--accent-dim); }
+
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 1px;
+    background: var(--panel-border);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .stack-item {
+    background: var(--panel);
+    padding: 22px;
+    transition: background 0.2s;
+  }
+  .stack-item:hover { background: #1a2330; }
+  .stack-item .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.02em;
+    margin-bottom: 8px;
+  }
+  .stack-item .value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .roadmap { display: flex; flex-direction: column; gap: 2px; }
+  .rm-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px;
+  }
+  .rm-check {
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+  .rm-done { background: var(--accent); color: #0d1117; }
+  .rm-pending { border: 1px solid var(--panel-border); color: transparent; }
+  .rm-item.done span.label { color: var(--text); }
+  .rm-item.pending span.label { color: var(--text-dim); }
+
+  .codeblock {
+    background: #10161f;
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    padding: 18px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text-dim);
+    overflow-x: auto;
+    margin-top: 16px;
+  }
+  .codeblock .c-accent { color: var(--accent); }
+  .codeblock .c-amber { color: var(--amber); }
+
+  footer {
+    border-top: 1px solid var(--panel-border);
+    padding: 40px 0 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  footer .name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+  }
+  footer .role { color: var(--text-dim); font-size: 13px; margin-top: 4px; }
+  footer a.gh {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    text-decoration: none;
+    border: 1px solid var(--accent-dim);
+    padding: 9px 16px;
+    border-radius: 6px;
+    transition: background 0.2s;
+  }
+  footer a.gh:hover { background: rgba(57,217,138,0.08); }
+
+  @media (max-width: 600px) {
+    .navlinks { display: none; }
+    .hero { padding: 60px 0 40px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="glow"></div>
+
+<nav>
+  <div class="wrap">
+    <div class="brand"><span class="dot"></span>ansible-lab</div>
+    <div class="navlinks">
+      <a href="#structure">structure</a>
+      <a href="#stack">stack</a>
+      <a href="#secrets">secrets</a>
+      <a href="#roadmap">roadmap</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <section class="hero">
+    <div class="hero-label">provisioned on AWS EC2</div>
+    <h1>Config management,<br>done by hand until<br>it isn't anymore.</h1>
+    <p class="lede">A practice repo for learning Ansible the way it's used in production: inventories, idempotent playbooks, loops, and Vault-encrypted secrets — before layering on Terraform and Kubernetes.</p>
+
+    <div class="terminal">
+      <div class="terminal-bar">
+        <span class="tdot t1"></span><span class="tdot t2"></span><span class="tdot t3"></span>
+        <span class="tname">ubuntu@ip-172-31-28-250: ~/playbooks</span>
+      </div>
+      <div class="terminal-body" id="term-body"></div>
+    </div>
+
+    <div class="badges">
+      <div class="badge"><span class="bdot" style="background:var(--accent)"></span>2 workers online</div>
+      <div class="badge"><span class="bdot" style="background:var(--amber)"></span>vault encrypted</div>
+      <div class="badge"><span class="bdot" style="background:var(--accent)"></span>idempotent runs</div>
+    </div>
+  </section>
+
+  <section id="structure">
+    <div class="section-head"><span class="section-num">01</span><h2>Project structure</h2></div>
+    <div class="tree">
+<span class="comment"># repository layout</span>
+.
+├── <span class="file">host.ini</span>              <span class="comment"># inventory — worker1 & worker2</span>
+├── <span class="file">secret.yml</span>             <span class="comment"># vault-encrypted credentials</span>
+├── <span class="file">.gitignore</span>             <span class="comment"># excludes keys & vault password</span>
+└── playbooks/
+    ├── <span class="file">Install_packages.yml</span>   <span class="comment"># docker, nginx, tree, zip, jq</span>
+    └── <span class="file">show_secret.yml</span>         <span class="comment"># safe secret handling, no_log</span>
+    </div>
+  </section>
+
+  <section id="stack">
+    <div class="section-head"><span class="section-num">02</span><h2>Stack</h2></div>
+    <div class="stack-grid">
+      <div class="stack-item"><div class="label">PROVISIONING</div><div class="value">AWS EC2</div></div>
+      <div class="stack-item"><div class="label">CONFIG MGMT</div><div class="value">Ansible</div></div>
+      <div class="stack-item"><div class="label">SECRETS</div><div class="value">Ansible Vault</div></div>
+      <div class="stack-item"><div class="label">OS</div><div class="value">Ubuntu 22.04</div></div>
+    </div>
+  </section>
+
+  <section id="secrets">
+    <div class="section-head"><span class="section-num">03</span><h2>Secrets handling</h2></div>
+    <p style="color:var(--text-dim); max-width:560px; margin-bottom:6px;">Credentials in <code class="mono" style="color:var(--accent)">secret.yml</code> are encrypted at rest, and task output is suppressed so nothing leaks into console logs.</p>
+    <div class="codeblock">
+<span class="c-accent">$</span> ansible-vault encrypt secret.yml<br>
+<span class="c-accent">$</span> ansible-playbook -i host.ini playbooks/show_secret.yml <span class="c-amber">--ask-vault-pass</span>
+    </div>
+  </section>
+
+  <section id="roadmap">
+    <div class="section-head"><span class="section-num">04</span><h2>Roadmap</h2></div>
+    <div class="roadmap">
+      <div class="rm-item done"><span class="rm-check rm-done">✓</span><span class="label">Static inventory (host.ini)</span></div>
+      <div class="rm-item done"><span class="rm-check rm-done">✓</span><span class="label">Package installation playbook with loops</span></div>
+      <div class="rm-item done"><span class="rm-check rm-done">✓</span><span class="label">Vault-encrypted secrets</span></div>
+      <div class="rm-item pending"><span class="rm-check rm-pending">·</span><span class="label">Dynamic AWS inventory (aws_ec2 plugin)</span></div>
+      <div class="rm-item pending"><span class="rm-check rm-pending">·</span><span class="label">Ansible Roles for reusable structure</span></div>
+      <div class="rm-item pending"><span class="rm-check rm-pending">·</span><span class="label">CI/CD integration — GitHub Actions → Ansible</span></div>
+    </div>
+  </section>
+
+  <footer>
+    <div>
+      <div class="name">Hamza Ali</div>
+      <div class="role">Software Engineering Student, SUIT Peshawar · Aspiring DevOps/SRE Engineer</div>
+    </div>
+    <a class="gh" href="https://github.com/HamzaMaLik121/Ansible" target="_blank">view source →</a>
+  </footer>
+
+</div>
+
+<script>
+  const lines = [
+    { type: 'cmd', text: 'ansible-playbook -i host.ini playbooks/Install_packages.yml' },
+    { type: 'out', text: 'PLAY [Install-Packages] ****************************' },
+    { type: 'out', text: 'TASK [Gathering Facts] ******************************' },
+    { type: 'ok',  text: 'ok: [worker1]' },
+    { type: 'ok',  text: 'ok: [worker2]' },
+    { type: 'out', text: 'TASK [Install Package] *****************************' },
+    { type: 'ok',  text: 'changed: [worker1] => (item=docker.io)' },
+    { type: 'ok',  text: 'changed: [worker2] => (item=nginx)' },
+    { type: 'out', text: 'PLAY RECAP ******************************************' },
+    { type: 'ok',  text: 'worker1: ok=4  changed=2  unreachable=0  failed=0' },
+    { type: 'ok',  text: 'worker2: ok=4  changed=2  unreachable=0  failed=0' },
+  ];
+
+  const body = document.getElementById('term-body');
+  let li = 0;
+
+  function renderLine(line) {
+    const div = document.createElement('div');
+    div.className = 'fade-line';
+    if (line.type === 'cmd') {
+      div.innerHTML = '<span class="prompt">$</span> <span class="cmd">' + line.text + '</span>';
+    } else if (line.type === 'ok') {
+      div.innerHTML = '<span class="out-ok">' + line.text + '</span>';
+    } else {
+      div.innerHTML = '<span class="out-dim">' + line.text + '</span>';
+    }
+    body.appendChild(div);
+  }
+
+  function step() {
+    if (li < lines.length) {
+      renderLine(lines[li]);
+      li++;
+      setTimeout(step, li === 1 ? 500 : 260);
+    } else {
+      const cursor = document.createElement('div');
+      cursor.className = 'fade-line';
+      cursor.innerHTML = '<span class="prompt">$</span> <span id="typed-line"></span>';
+      body.appendChild(cursor);
+    }
+  }
+
+  setTimeout(step, 400);
+</script>
+
+</body>
+</html>
+
